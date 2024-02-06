@@ -1,10 +1,19 @@
-const VARIANTS = [
-  { name: 'SM', value: 60 },
-  { name: 'MD', value: 100 },
-  { name: 'LG', value: 160 },
-];
+interface Variant {
+  name: string;
+  value: number;
+}
 
-async function createIconComponents() {
+figma.showUI(__html__, { width: 500, height: 500 });
+
+figma.ui.onmessage = (msg) => {
+  if (msg.type === 'cancel') figma.closePlugin();
+
+  if (msg.type === 'create-variants') {
+    createIconComponents(msg.payload);
+  }
+};
+
+async function createIconComponents(variants: Variant[] = []) {
   figma.notify('Creating variants, please wait...');
 
   // Get frame elements inside selection.
@@ -17,6 +26,15 @@ async function createIconComponents() {
   }
 
   // Create frame for output.
+  const outputFrame = createOutputFrame();
+  // Create component variants.
+  createComponentVariants(frame, outputFrame, variants);
+
+  figma.notify('Variants created successfully.');
+  figma.closePlugin();
+}
+
+function createOutputFrame() {
   const outputFrame = figma.createFrame();
   outputFrame.name = 'Components ' + new Date().toISOString();
   outputFrame.layoutMode = 'HORIZONTAL';
@@ -26,10 +44,18 @@ async function createIconComponents() {
   outputFrame.verticalPadding = 100;
   outputFrame.horizontalPadding = 100;
 
+  return outputFrame;
+}
+
+function createComponentVariants(
+  frame: FrameNode,
+  outputFrame: FrameNode,
+  variants: Variant[],
+) {
   for (const icon of frame.children) {
     if (icon.type !== 'FRAME') continue;
     // Create component variants.
-    const components = VARIANTS.map((variant) => {
+    const components = variants.map((variant) => {
       const clone = icon.clone();
       const component = figma.createComponent();
       component.name = `size=${variant.name}`;
@@ -49,12 +75,7 @@ async function createIconComponents() {
     componentSet.counterAxisAlignItems = 'CENTER';
     componentSet.itemSpacing = 50;
   }
-
-  figma.notify('Variants created successfully.');
-  figma.closePlugin();
 }
-
-figma.on('run', createIconComponents);
 
 function resizeAndCenter(icon: FrameNode, variantValue: number) {
   // For each frame, take name, width and height.

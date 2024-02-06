@@ -1,0 +1,184 @@
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    padding: 3rem;
+    font-family: sans-serif;
+    background-color: #f9f9f9;
+  }
+
+  div.variant_container {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    border: 1px solid #ccc;
+    padding: 1rem;
+    border-radius: 8px;
+    background-color: white;
+  }
+
+  h1 {
+    text-align: center;
+  }
+
+  h2 {
+    margin: 0;
+  }
+
+  input[type='text'],
+  input[type='number'] {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+
+  div.button_container {
+    display: flex;
+    flex-direction: column;
+    margin-top: 1.5rem;
+    gap: 0.5rem;
+  }
+
+  div.button_container button {
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    color: white;
+    height: 40px;
+  }
+
+  div.button_container button:hover {
+    opacity: 0.8;
+    transform: scale(1.02);
+    transition: 0.2s;
+  }
+
+  div.button_container button:active {
+    opacity: 0.9;
+    transform: scale(0.98);
+    transition: 0.2s;
+  }
+</style>
+
+<form id="sizeForm">
+  <h1>Create Icon Size Variants</h1>
+  <div>
+    <p>
+      Enter the name and value for each variant. The value is the size of the
+      variant in pixels.
+    </p>
+    <code>(e.g. name: "XL", value: 512)</code>
+    <p>
+      You can create up to 5 variants. Leave the name field empty to skip a
+      variant.
+    </p>
+  </div>
+  <div class="variant_container">
+    <h2>Variant 1</h2>
+    <label for="variantName1">Name:</label>
+    <input required type="text" id="variantName1" name="variantName1" />
+    <label for="variantValue1">Value:</label>
+    <input
+      required
+      type="number"
+      min="1"
+      step="1"
+      id="variantValue1"
+      name="variantValue1"
+    />
+  </div>
+  <div class="variant_container">
+    <h2>Variant 2</h2>
+    <label for="variantName2">Name:</label>
+    <input type="text" id="variantName2" name="variantName2" />
+    <label for="variantValue2">Value:</label>
+    <input
+      type="number"
+      min="1"
+      step="1"
+      id="variantValue2"
+      name="variantValue2"
+    />
+  </div>
+  <div class="variant_container">
+    <h2>Variant 3</h2>
+    <label for="variantName3">Name:</label>
+    <input type="text" id="variantName3" name="variantName3" />
+    <label for="variantValue3">Value:</label>
+    <input
+      type="number"
+      min="1"
+      step="1"
+      id="variantValue3"
+      name="variantValue3"
+    />
+  </div>
+  <div class="variant_container">
+    <h2>Variant 4</h2>
+    <label for="variantName4">Name:</label>
+    <input type="text" id="variantName4" name="variantName4" />
+    <label for="variantValue4">Value:</label>
+    <input
+      type="number"
+      min="1"
+      step="1"
+      id="variantValue4"
+      name="variantValue4"
+    />
+  </div>
+  <div class="variant_container">
+    <h2>Variant 5</h2>
+    <label for="variantName5">Name:</label>
+    <input type="text" id="variantName5" name="variantName5" />
+    <label for="variantValue5">Value:</label>
+    <input
+      type="number"
+      min="1"
+      step="1"
+      id="variantValue5"
+      name="variantValue5"
+    />
+  </div>
+  <div class="button_container">
+    <button id="cancel" type="button" style="background-color: #f44336">
+      Cancel
+    </button>
+    <button type="submit" style="background-color: #4caf50">Start</button>
+  </div>
+</form>
+
+<script>
+  document.getElementById('cancel').onclick = () => {
+    parent.postMessage({ pluginMessage: { type: 'cancel' } }, '*');
+  };
+
+  document.getElementById('sizeForm').addEventListener('submit', (event) => {
+    event.preventDefault();
+    const variants = [];
+    for (let i = 1; i <= 5; i++) {
+      const name = document.getElementById(`variantName${i}`).value.trim();
+      const value = document.getElementById(`variantValue${i}`).value.trim();
+      if (name && value) {
+        // Ignore empty variants
+        variants.push({ name: name, value: parseInt(value, 10) });
+      }
+    }
+
+    if (variants.length > 0) {
+      // Post non-empty form data to the plugin code
+      parent.postMessage(
+        { pluginMessage: { type: 'create-variants', payload: variants } },
+        '*',
+      );
+    }
+  });
+</script>
